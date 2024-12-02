@@ -1,11 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strona główna</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moving Object</title>
+  <style>
+    #object {
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      position: absolute;
+      top: 50px;
+      left: 50px;
+    }
+  </style>
 </head>
 <body>
-    <script src="skrypt.js"></script>
+  <div id="object"></div>
+
+  <script>
+    const obj = document.getElementById('object');
+    let x = 50;
+    let y = 50;
+
+    document.addEventListener('keydown', (event) => {
+      const step = 10;
+      switch(event.key) {
+        case 'ArrowUp':
+          y -= step;
+          break;
+        case 'ArrowDown':
+          y += step;
+          break;
+        case 'ArrowLeft':
+          x -= step;
+          break;
+        case 'ArrowRight':
+          x += step;
+          break;
+      }
+      obj.style.top = `${y}px`;
+      obj.style.left = `${x}px`;
+    });
+  </script>
 </body>
 </html>
