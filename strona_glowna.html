@@ -3,44 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moving Object</title>
+  <title>Moving Objects with Boundaries</title>
   <style>
-    #object {
+    .object {
       width: 50px;
       height: 50px;
-      background-color: red;
       position: absolute;
-      top: 50px;
-      left: 50px;
+    }
+    #object1 {
+      background-color: red;
+    }
+    #object2 {
+      background-color: blue;
+    }
+    #object3 {
+      background-color: green;
+    }
+    body{
+      background-image: url(../img/ufo-1668223_1920.jpg);
+    }
+    h1{
+      color: red;
     }
   </style>
 </head>
 <body>
-  <div id="object"></div>
+  <div id="object1" class="object"></div>
+  <div id="object2" class="object"></div>
+  <div id="object3" class="object"></div>
+  <div><h1>Liczba zderzeń: </h1></div>
 
   <script>
-    const obj = document.getElementById('object');
-    let x = 50;
-    let y = 50;
+    var licznik = 0;
+    class Poruszanie {
+      constructor(id, x, y) {
+        this.element = document.getElementById(id);
+        this.width = 50;
+        this.height = 50;
+        this.x = x;
+        this.y = y;
+        this.pozycja();
+        
+      }
+
+      pozycja() {
+        this.element.style.left = `${this.x}px`;
+        this.element.style.top = `${this.y}px`;
+      }
+
+      ruch(dx, dy) {
+        const newX = this.x + dx;
+        const newY = this.y + dy;
+        if (newX >= 0 && newX <= window.innerWidth - this.width) {
+          this.x = newX;
+        }
+        if (newY >= 0 && newY <= window.innerHeight - this.height) {
+          this.y = newY;
+        }
+        this.pozycja();
+        this.sprawdzKolizje();
+      }
+
+      sprawdzKolizje() {
+        const rect1 = this.element.getBoundingClientRect();
+        const rect2 = object3.element.getBoundingClientRect();
+        
+        if (rect1.left < rect2.right && rect1.right > rect2.left &&
+            rect1.top < rect2.bottom && rect1.bottom > rect2.top) {
+          alert('Kolizja z zielonym obiektem!');
+          
+          licznik++;
+          let ra = document.querySelector("h1");
+          ra.innerHTML = "Licznik zdarzeń: "+licznik;
+          
+        }
+      }
+    }
+
+    class Randomowy extends Poruszanie {
+      constructor(id) {
+        const x = Math.floor(Math.random() * (window.innerWidth - 50));
+        const y = Math.floor(Math.random() * (window.innerHeight - 50));
+        super(id, x, y);
+      }
+
+      randomowaPozycja() {
+        this.x = Math.floor(Math.random() * (window.innerWidth - this.width));
+        this.y = Math.floor(Math.random() * (window.innerHeight - this.height));
+        this.pozycja();
+      }
+    }
+
+    const object1 = new Poruszanie('object1', (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2);
+    const object2 = new Poruszanie('object2', (window.innerWidth - 50) / 4, (window.innerHeight - 50) / 4);
+    const object3 = new Randomowy('object3');
 
     document.addEventListener('keydown', (event) => {
       const step = 10;
       switch(event.key) {
         case 'ArrowUp':
-          y -= step;
+          object1.ruch(0, -step);
           break;
         case 'ArrowDown':
-          y += step;
+          object1.ruch(0, step);
           break;
         case 'ArrowLeft':
-          x -= step;
+          object1.ruch(-step, 0);
           break;
         case 'ArrowRight':
-          x += step;
+          object1.ruch(step, 0);
+          break;
+        case 'w':
+          object2.ruch(0, -step);
+          break;
+        case 's':
+          object2.ruch(0, step);
+          break;
+        case 'a':
+          object2.ruch(-step, 0);
+          break;
+        case 'd':
+          object2.ruch(step, 0);
           break;
       }
-      obj.style.top = `${y}px`;
-      obj.style.left = `${x}px`;
+    });
+
+    window.addEventListener('resize', () => {
+      object3.randomowaPozycja();
     });
   </script>
 </body>
