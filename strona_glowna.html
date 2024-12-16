@@ -3,27 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moving Objects with Boundaries</title>
+  <title>Gra</title>
   <style>
     .object {
-      width: 50px;
-      height: 50px;
+      width: 100px;
+      height: 74px;
       position: absolute;
     }
     #object1 {
-      background-color: red;
+      background-image: url(../img/mango2.png);
     }
     #object2 {
-      background-color: blue;
+      background-image: url(../img/mango.png);
     }
     #object3 {
-      background-color: green;
+      background-image: url(../img/tlo.png);
     }
-    body{
-      background-image: url(../img/ufo-1668223_1920.jpg);
+    body {
+      background-image: url(../img/OIP.jpg);
     }
-    h1{
-      color: red;
+    h1 {
+      color: black;
+      text-align: center;
+      font-size: 80px;
     }
   </style>
 </head>
@@ -31,19 +33,26 @@
   <div id="object1" class="object"></div>
   <div id="object2" class="object"></div>
   <div id="object3" class="object"></div>
-  <div><h1>Liczba zderzeń: </h1></div>
+  <div><h1>Liczba zderzeń: 0</h1></div>
 
   <script>
-    var licznik = 0;
+    let licznik = 0;
+    let object1Direction = { x: 0, y: 0 };
+    let object2Direction = { x: 0, y: 0 };
+    let keys = {};
+    
+
     class Poruszanie {
-      constructor(id, x, y) {
+      constructor(id, x, y, direction) {
         this.element = document.getElementById(id);
-        this.width = 50;
-        this.height = 50;
+        this.width = 100;
+        this.height = 74;
+        this.initialX = x;
+        this.initialY = y;
         this.x = x;
         this.y = y;
         this.pozycja();
-        
+        this.direction = direction;
       }
 
       pozycja() {
@@ -51,40 +60,52 @@
         this.element.style.top = `${this.y}px`;
       }
 
-      ruch(dx, dy) {
-        const newX = this.x + dx;
-        const newY = this.y + dy;
+      resetPozycja() {
+        this.x = this.initialX;
+        this.y = this.initialY;
+        this.pozycja();
+      }
+
+      ruch() {
+        const newX = this.x + this.direction.x;
+        const newY = this.y + this.direction.y;
+
+       
         if (newX >= 0 && newX <= window.innerWidth - this.width) {
           this.x = newX;
         }
         if (newY >= 0 && newY <= window.innerHeight - this.height) {
           this.y = newY;
         }
-        this.pozycja();
+        
+        this.pozycja()
         this.sprawdzKolizje();
+        
       }
 
       sprawdzKolizje() {
         const rect1 = this.element.getBoundingClientRect();
-        const rect2 = object3.element.getBoundingClientRect();
-        
+        const rect2 = document.getElementById('object3').getBoundingClientRect();
+
         if (rect1.left < rect2.right && rect1.right > rect2.left &&
             rect1.top < rect2.bottom && rect1.bottom > rect2.top) {
-          alert('Kolizja z zielonym obiektem!');
+          alert(`Kolizja z TYMI KTÓRZY WIEDZĄ!` );
+          this.resetPozycja();
+          object3.randomowaPozycja();
+          object1.resetPozycja();
+          object2.resetPozycja();
           
           licznik++;
-          let ra = document.querySelector("h1");
-          ra.innerHTML = "Licznik zdarzeń: "+licznik;
-          
+          document.querySelector("h1").textContent = `Liczba zderzeń: ${licznik}`;
         }
       }
     }
 
     class Randomowy extends Poruszanie {
       constructor(id) {
-        const x = Math.floor(Math.random() * (window.innerWidth - 50));
-        const y = Math.floor(Math.random() * (window.innerHeight - 50));
-        super(id, x, y);
+        const x = Math.floor(Math.random() * (window.innerWidth - 100));
+        const y = Math.floor(Math.random() * (window.innerHeight - 74));
+        super(id, x, y, { x: 0, y: 0 }); 
       }
 
       randomowaPozycja() {
@@ -94,43 +115,75 @@
       }
     }
 
-    const object1 = new Poruszanie('object1', (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2);
-    const object2 = new Poruszanie('object2', (window.innerWidth - 50) / 4, (window.innerHeight - 50) / 4);
+    const object1 = new Poruszanie('object1', (window.innerWidth - 300) / 2, (window.innerHeight - 74) / 2, object1Direction);
+    const object2 = new Poruszanie('object2', (window.innerWidth - 100) / 2, (window.innerHeight - 74) / 2, object2Direction);
     const object3 = new Randomowy('object3');
 
-    document.addEventListener('keydown', (event) => {
-      const step = 10;
+   
+    window.addEventListener("keydown", (event) => {
       switch(event.key) {
         case 'ArrowUp':
-          object1.ruch(0, -step);
-          break;
+          object1Direction.y = -5; break;
         case 'ArrowDown':
-          object1.ruch(0, step);
-          break;
+          object1Direction.y = 5; break;
         case 'ArrowLeft':
-          object1.ruch(-step, 0);
-          break;
+          object1Direction.x = -5; break;
         case 'ArrowRight':
-          object1.ruch(step, 0);
-          break;
-        case 'w':
-          object2.ruch(0, -step);
-          break;
-        case 's':
-          object2.ruch(0, step);
-          break;
-        case 'a':
-          object2.ruch(-step, 0);
-          break;
-        case 'd':
-          object2.ruch(step, 0);
-          break;
+          object1Direction.x = 5; break;
       }
     });
 
-    window.addEventListener('resize', () => {
-      object3.randomowaPozycja();
+    window.addEventListener("keyup", (event) => {
+      switch(event.key) {
+        case 'ArrowUp':
+        case 'ArrowDown':
+          object1Direction.y = 0; break;
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          object1Direction.x = 0; break;
+      }
     });
+
+    window.addEventListener("keydown", (event) => {
+      switch(event.key) {
+        case 'w':
+      
+          object2Direction.y = -5; break;
+        case 's':
+        
+          object2Direction.y = 5; break;
+        case 'a':
+        
+          object2Direction.x = -5; break;
+        case 'd':
+    
+          object2Direction.x = 5; break;
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      switch(event.key) {
+        case 'w':
+        
+        case 's':
+        
+          object2Direction.y = 0; break;
+        case 'a':
+        
+        case 'd':
+    
+          object2Direction.x = 0; break;
+      }
+    });
+
+    function animate() {
+      object1.ruch();
+      object2.ruch();
+      requestAnimationFrame(animate);
+    }
+
+    animate(); 
+
   </script>
 </body>
 </html>
